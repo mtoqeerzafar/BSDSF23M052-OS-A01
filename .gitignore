@@ -1,0 +1,10 @@
+# temporary files
+*~
+*.swp
+
+# object files
+*.o
+obj/
+
+# ignore IDE/editor configs
+.vscode/
