@@ -1,3 +1,5 @@
+Feature 2 Questions:
+
 Q1: Explain the linking rule $(TARGET): $(OBJECTS). How does it differ from linking against a library?
 
 Answer:
@@ -35,3 +37,15 @@ ranlib generates an index (symbol table) inside the archive so linkers can quick
 If mystrlen is used by the program, nm bin/client_static will show mystrlen as a defined symbol (e.g., T mystrlen). This demonstrates that static linking copied the library's object code into the executable at link time — there is no runtime dependency on libmyutils.a.
 
 Include small outputs (e.g., ar -t and nm snippets) and a short paragraph interpreting them.
+
+
+Feature 4 Questions :
+
+Q1 — What is Position-Independent Code (-fPIC) and why required?
+-fPIC instructs the compiler to produce machine code that does not assume it will be loaded at a fixed absolute address. PIC uses relative addressing through GOT/PLT so the same compiled code can be mapped at different addresses in different processes. Shared libraries are loaded into arbitrary addresses by the OS loader (to allow address space layout randomization and sharing), therefore object files used to produce .so must be position-independent so relocation is safe and efficient.
+
+Q2 — Explain file size difference between static and dynamic clients.
+A statically-linked executable includes the library code copied from the .a into the final binary at link time, so the executable contains all used library functions — increasing its size. A dynamically-linked executable contains only references (DT_NEEDED entries) to the shared library; the actual code lives in .so and is loaded at runtime. Therefore client_static is larger; client_dynamic is smaller. Additionally, multiple processes using the same .so share a single memory copy.
+
+Q3 — What is LD_LIBRARY_PATH and why necessary?
+LD_LIBRARY_PATH is an environment variable used by the dynamic loader to locate shared libraries at runtime before searching system default locations (/lib, /usr/lib) or RPATH. Since lib/libmyutils.so lives in the project directory (not a system path), the loader cannot find it by default, so we set LD_LIBRARY_PATH=$(pwd)/lib so the dynamic loader knows where to look. This demonstrates that the loader is responsible for locating shared libraries at program start and will only succeed if libraries are in its search paths or have an embedded runpath.
