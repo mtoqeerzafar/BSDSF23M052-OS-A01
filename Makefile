@@ -1,4 +1,4 @@
-# Makefile - builds static (.a) and dynamic (.so) libs and executables
+# Makefile - builds static (.a) and dynamic (.so) libs, executables, and supports install/uninstall
 
 CC := gcc
 AR := ar
@@ -34,7 +34,14 @@ MAIN_OBJ := $(OBJDIR)/main.o
 TARGET_STATIC := $(BINDIR)/client_static
 TARGET_DYNAMIC := $(BINDIR)/client_dynamic
 
-.PHONY: all static dynamic clean dirs
+# Installation directories
+PREFIX  := /usr/local
+BINDIR_SYS := $(PREFIX)/bin
+MANDIR_SYS := $(PREFIX)/share/man/man1
+
+MANPAGE := man/man1/client.1
+
+.PHONY: all static dynamic clean dirs install uninstall
 
 all: static dynamic
 
@@ -60,7 +67,6 @@ $(STATIC_LIB): $(LIB_OBJS) | dirs
 	$(RANLIB) $@ || true
 
 # Shared library (.so)
-# set soname to libmyutils.so for clarity (simple case). For real versioning use libmyutils.so.1
 $(DYNAMIC_LIB): $(PIC_OBJS) | dirs
 	$(CC) -shared -Wl,-soname,$(LIBNAME).so -o $@ $(PIC_OBJS)
 
@@ -69,13 +75,26 @@ $(TARGET_STATIC): $(MAIN_OBJ) $(STATIC_LIB) | dirs
 	$(CC) $(CFLAGS) $(MAIN_OBJ) $(STATIC_LIB) -o $@
 
 # Dynamic-linked client
-# Link by name; at runtime you must set LD_LIBRARY_PATH to find the .so in ./lib
 $(TARGET_DYNAMIC): $(MAIN_OBJ) $(DYNAMIC_LIB) | dirs
 	$(CC) $(CFLAGS) $(MAIN_OBJ) -L$(LIBDIR) -lmyutils -o $@
 
 static: $(TARGET_STATIC)
-
 dynamic: $(TARGET_DYNAMIC)
+
+# Install target: installs client_dynamic and man page
+install: $(TARGET_DYNAMIC) $(MANPAGE)
+	@echo "Installing executable to $(BINDIR_SYS)..."
+	install -d $(BINDIR_SYS)
+	install -m 755 $(TARGET_DYNAMIC) $(BINDIR_SYS)/client
+	@echo "Installing man page to $(MANDIR_SYS)..."
+	install -d $(MANDIR_SYS)
+	install -m 644 $(MANPAGE) $(MANDIR_SYS)
+
+# Uninstall target: removes installed files
+uninstall:
+	@echo "Removing installed files..."
+	rm -f $(BINDIR_SYS)/client
+	rm -f $(MANDIR_SYS)/client.1
 
 clean:
 	rm -rf $(OBJDIR) $(LIBDIR) $(BINDIR)
