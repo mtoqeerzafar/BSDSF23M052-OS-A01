@@ -49,3 +49,31 @@ A statically-linked executable includes the library code copied from the .a into
 
 Q3 — What is LD_LIBRARY_PATH and why necessary?
 LD_LIBRARY_PATH is an environment variable used by the dynamic loader to locate shared libraries at runtime before searching system default locations (/lib, /usr/lib) or RPATH. Since lib/libmyutils.so lives in the project directory (not a system path), the loader cannot find it by default, so we set LD_LIBRARY_PATH=$(pwd)/lib so the dynamic loader knows where to look. This demonstrates that the loader is responsible for locating shared libraries at program start and will only succeed if libraries are in its search paths or have an embedded runpath.
+
+Feature 5 Questions :
+
+What is Position-Independent Code (-fPIC)?
+
+Already answered in Feature-4.
+
+🔹 Difference in file size between static and dynamic clients?
+
+Already explained.
+
+🔹 What is LD_LIBRARY_PATH?
+
+Already explained.
+
+🔹 Why are man pages important?
+
+→ They provide standardized documentation for commands and libraries, accessible directly through the man command.
+→ Man pages ensure that users and developers can quickly learn how to use your program, its options, and its purpose without searching external docs.
+→ They follow a consistent sectioned format (NAME, SYNOPSIS, DESCRIPTION, AUTHOR, etc.), making them easy to read and universally understood in Unix/Linux systems.
+
+🔹 What does the install target simulate?
+
+→ It simulates a system-wide installation, where:
+
+The executable is copied to /usr/local/bin, so it can be run from anywhere by just typing client.
+
+The man page is copied to /usr/local/share/man/man1, so users can access documentation with man client.
